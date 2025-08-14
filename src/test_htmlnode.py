@@ -80,13 +80,13 @@ class TestHTMLNode(unittest.TestCase):
         self.assertEqual(node.to_html(), "<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>")
 
     def test_parent_nested_multiple(self):
-        child_1 = LeafNode('a', 'child_1')
+        child_1 = LeafNode('i', 'child_1')
         child_2 = LeafNode('div', 'child_2')
         child_3 = LeafNode('span', 'child_3')
         parent_1 = ParentNode('div', [child_1])
         parent_2 = ParentNode('span', [child_2, child_3])
         grandparent = ParentNode('b', [parent_1, parent_2])
-        self.assertEqual(grandparent.to_html(), '<b><div><a>child_1</a></div><span><div>child_2</div><span>child_3</span></span></b>')
+        self.assertEqual(grandparent.to_html(), '<b><div><i>child_1</i></div><span><div>child_2</div><span>child_3</span></span></b>')
   
 
 
