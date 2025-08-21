@@ -66,10 +66,10 @@ This is a paragraph of text. It has some **bold** and _italic_ words inside of i
         block_type = block_to_block_type(block)
         self.assertEqual(block_type, BlockType.ORDERED_LIST)
     
-    #def test_block_to_blocktype_paragraph(self):
-        #block = 'This is a paragraph'
-        #block_type = block_to_block_type(block)
-        #self.assertEqual(block_type, BlockType.PARAGRAPH)
+    def test_block_to_blocktype_paragraph(self):
+        block = 'This is a paragraph'
+        block_type = block_to_block_type(block)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
 
 if __name__ == "__main__":
     unittest.main()
