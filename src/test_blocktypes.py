@@ -47,7 +47,7 @@ This is a paragraph of text. It has some **bold** and _italic_ words inside of i
         self.assertEqual(block_type, BlockType.HEADING)
 
     def test_block_to_blocktype_code(self):
-        block = '```This is a code block```'
+        block = '```This is a code block\n```'
         block_type = block_to_block_type(block)
         self.assertEqual(block_type, BlockType.CODE)
 

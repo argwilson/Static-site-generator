@@ -1,5 +1,5 @@
-import re
 from enum import Enum
+from htmlnode import HTMLNode
 
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
@@ -20,27 +20,34 @@ def markdown_to_blocks(markdown):
     return new_blocks
 
 def block_to_block_type(block):
-    if re.findall(r"^#{1,6} .+", block):
+    lines = block.split("\n")
+
+    if block.startswith(("# ", "## ", "### ", "#### ", "##### ", "###### ")):
         return BlockType.HEADING
-    if re.findall(r"^`{3}.+`{3}$", block):
+    if len(lines) > 1 and lines[0].startswith("```") and lines[-1].startswith("```"):
         return BlockType.CODE
-    verify_blocks = []
-    if re.findall(r"^>.+", block):
-        small_block = block.split("\n")
-        for small in small_block:
-            verify_blocks.append(re.findall(r"^>.+", small) != [])
-        if sum(verify_blocks) == len(small_block):
-            return BlockType.QUOTE
-    if re.findall(r"^- .+", block):
-        small_block = block.split("\n")
-        for small in small_block:
-            verify_blocks.append(re.findall(r"^- .+", small) != [])
-        if sum(verify_blocks) == len(small_block):
-            return BlockType.UNORDERED_LIST
-    if re.findall(r"1\. .+", block):
-        small_block = block.split("\n")
-        for i in range(len(small_block)):
-            verify_blocks.append(re.findall(rf"{i+1}\. .+", small_block[i]) != [])
-        if sum(verify_blocks) == len(small_block):
-            return BlockType.ORDERED_LIST
+    if block.startswith(">"):
+        for line in lines:
+            if not line.startswith(">"):
+                return BlockType.PARAGRAPH
+        return BlockType.QUOTE
+    if block.startswith("- "):
+        for line in lines:
+            if not line.startswith("- "):
+                return BlockType.PARAGRAPH
+        return BlockType.UNORDERED_LIST
+    if block.startswith("1. "):
+        i = 1
+        for line in lines:
+            if not line.startswith(f"{i}. "):
+                return BlockType.PARAGRAPH
+            i += 1
+        return BlockType.ORDERED_LIST
     return BlockType.PARAGRAPH
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        if block_type is BlockType.CODE:
+            node = HTMLNode(tag="pre", value=HTMLNode(tag="code", value=block.replace("```", "")))
