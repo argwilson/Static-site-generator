@@ -50,4 +50,31 @@ def markdown_to_html_node(markdown):
     for block in blocks:
         block_type = block_to_block_type(block)
         if block_type is BlockType.CODE:
-            node = HTMLNode(tag="pre", value=HTMLNode(tag="code", value=block.replace("```", "")))
+            new_block = block.replace("```", "")
+            node = HTMLNode(tag="pre", children=HTMLNode(tag="code", value=new_block))
+        elif block_type is BlockType.HEADING:
+            heading = block.split(" ")[0]
+            i = len(heading.split())
+            new_block = block.replace(heading, "")
+            node = HTMLNode(tag=f"h{i+1}", value=new_block)
+        elif block_type is BlockType.QUOTE:
+            new_block = block.replace(">", "")
+            node = HTMLNode(tag="blockquote", value=new_block)
+        elif block_type is BlockType.UNORDERED_LIST:
+            lines = block.split("\n")
+            nodes = []
+            for line in lines:
+                new_line = line.replace("- ", "")
+                new_node = HTMLNode(tag="li", value=new_line)
+                nodes.append(new_node)
+            node = HTMLNode(tag="ul", value=nodes)
+        elif block_type is BlockType.ORDERED_LIST:
+            lines = block.split("\n")
+            nodes = []
+            i = 1
+            for line in lines:
+                new_line = line.replace(f"{i}.  ", "")
+                i += 1
+                new_node = HTMLNode(tag="li", value=new_line)
+                nodes.append(new_node)
+            node = HTMLNode(tag="ol", value=nodes)
