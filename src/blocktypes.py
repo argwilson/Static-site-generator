@@ -1,5 +1,7 @@
 from enum import Enum
-from htmlnode import HTMLNode
+from htmlnode import ParentNode
+from textnode import TextNode, TextType, text_node_to_html_node
+from splitdelimiter import split_nodes
 
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
@@ -45,36 +47,61 @@ def block_to_block_type(block):
         return BlockType.ORDERED_LIST
     return BlockType.PARAGRAPH
 
+def text_to_child_node(text):
+    text_node = TextNode(text=text, text_type=TextType.TEXT)
+    text_nodes = split_nodes([text_node])
+    child_nodes = []
+    for node in text_nodes:
+        new_node = text_node_to_html_node(node)
+        child_nodes.append(new_node)
+    return child_nodes
+
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
+    nodes = []
     for block in blocks:
         block_type = block_to_block_type(block)
-        if block_type is BlockType.CODE:
-            new_block = block.replace("```", "")
-            node = HTMLNode(tag="pre", children=HTMLNode(tag="code", value=new_block))
-        elif block_type is BlockType.HEADING:
-            heading = block.split(" ")[0]
-            i = len(heading.split())
-            new_block = block.replace(heading, "")
-            node = HTMLNode(tag=f"h{i+1}", value=new_block)
+        if block_type is BlockType.HEADING:
+            heading_list = block.split(" ", 1)
+            i = len(heading_list[0])
+            child_nodes = text_to_child_node(heading_list[1])
+            nodes.append(ParentNode(tag=f"h{i}", children=child_nodes))
         elif block_type is BlockType.QUOTE:
-            new_block = block.replace(">", "")
-            node = HTMLNode(tag="blockquote", value=new_block)
-        elif block_type is BlockType.UNORDERED_LIST:
-            lines = block.split("\n")
-            nodes = []
-            for line in lines:
-                new_line = line.replace("- ", "")
-                new_node = HTMLNode(tag="li", value=new_line)
-                nodes.append(new_node)
-            node = HTMLNode(tag="ul", value=nodes)
+            block = block.replace("\n", "")
+            new_blocks = block.split(">")
+            for new_block in new_blocks:
+                if new_block == "":
+                    continue
+                child_nodes = text_to_child_node(new_block)
+                nodes.append(ParentNode(tag="blockquote", children=child_nodes))
         elif block_type is BlockType.ORDERED_LIST:
             lines = block.split("\n")
-            nodes = []
             i = 1
+            line_nodes = []
             for line in lines:
-                new_line = line.replace(f"{i}.  ", "")
+                line = line.replace(f"{i}. ", "")
+                child_nodes = text_to_child_node(line)
+                line_nodes.append(ParentNode(tag="li", children=child_nodes))
                 i += 1
-                new_node = HTMLNode(tag="li", value=new_line)
-                nodes.append(new_node)
-            node = HTMLNode(tag="ol", value=nodes)
+            nodes.append(ParentNode(tag="ol", children=line_nodes))
+        elif block_type is BlockType.UNORDERED_LIST:
+            lines = block.split("\n")
+            line_nodes = []
+            for line in lines:
+                line = line.replace("- ", "")
+                child_nodes = text_to_child_node(line)
+                line_nodes.append(ParentNode(tag="li", children=child_nodes))
+            nodes.append(ParentNode(tag="ul", children=line_nodes))
+        elif block_type is BlockType.CODE:
+            new_block = block.strip("```")
+            new_block = new_block.split("\n", 1)[1]
+            text_node = TextNode(text=new_block, text_type=TextType.CODE)
+            child_node = text_node_to_html_node(text_node)
+            nodes.append(ParentNode(tag="pre", children=[child_node]))
+        else:
+            new_block = block.replace("\n", " ")
+            child_nodes = text_to_child_node(new_block)
+            nodes.append(ParentNode(tag="p", children=child_nodes))
+    parent = ParentNode(tag="div", children=nodes)
+    return parent
+    
