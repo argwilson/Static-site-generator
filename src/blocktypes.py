@@ -105,3 +105,13 @@ def markdown_to_html_node(markdown):
     parent = ParentNode("div", nodes)
     return parent
     
+def extract_title(markdown):
+    block = markdown_to_blocks(markdown)[0]
+    block_type = block_to_block_type(block)
+    if block_type is not BlockType.HEADING:
+        raise Exception("Warning, no h1 heading found")
+    heading_list = block.split(" ", 1)
+    if len(heading_list[0]) != 1:
+        raise Exception("Warning, noh1 heading found")
+    text = heading_list[1].strip()
+    return text
