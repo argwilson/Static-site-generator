@@ -1,3 +1,4 @@
+import re
 from textnode import TextNode, TextType
 from extract_markdown import extract_markdown_images, extract_markdown_links
 
@@ -87,3 +88,10 @@ def split_nodes(old_nodes):
     new_nodes = split_nodes_link(new_nodes)
     new_nodes = split_nodes_image(new_nodes)
     return new_nodes
+
+#The following regex expressions help find images and links in markdown
+def extract_markdown_images(text):
+    return re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+
+def extract_markdown_links(text):
+    return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)

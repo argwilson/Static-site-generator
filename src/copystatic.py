@@ -26,7 +26,7 @@ def copy_static(source, directory):
 				item_paths.append(item_path)
 		return item_paths
 	# Calls inner function on static and public
-	paths = get_source_paths(static, public)
+	paths = get_source_paths(source, directory)
 	# Finds appropriate location in public directory to create copy of static directory
 	for path in paths:
 		new_path = path.replace('static', 'public')
