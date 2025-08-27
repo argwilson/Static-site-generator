@@ -48,7 +48,7 @@ def block_to_block_type(block):
     return BlockType.PARAGRAPH
 
 def text_to_child_node(text):
-    text_node = TextNode(text=text, text_type=TextType.TEXT)
+    text_node = TextNode(text, TextType.TEXT)
     text_nodes = split_nodes([text_node])
     child_nodes = []
     for node in text_nodes:
@@ -65,7 +65,7 @@ def markdown_to_html_node(markdown):
             heading_list = block.split(" ", 1)
             i = len(heading_list[0])
             child_nodes = text_to_child_node(heading_list[1])
-            nodes.append(ParentNode(tag=f"h{i}", children=child_nodes))
+            nodes.append(ParentNode(f"h{i}", child_nodes))
         elif block_type is BlockType.QUOTE:
             block = block.replace("\n", "")
             new_blocks = block.split(">")
@@ -73,7 +73,7 @@ def markdown_to_html_node(markdown):
                 if new_block == "":
                     continue
                 child_nodes = text_to_child_node(new_block)
-                nodes.append(ParentNode(tag="blockquote", children=child_nodes))
+                nodes.append(ParentNode("blockquote", child_nodes))
         elif block_type is BlockType.ORDERED_LIST:
             lines = block.split("\n")
             i = 1
@@ -81,27 +81,27 @@ def markdown_to_html_node(markdown):
             for line in lines:
                 line = line.replace(f"{i}. ", "")
                 child_nodes = text_to_child_node(line)
-                line_nodes.append(ParentNode(tag="li", children=child_nodes))
+                line_nodes.append(ParentNode("li", child_nodes))
                 i += 1
-            nodes.append(ParentNode(tag="ol", children=line_nodes))
+            nodes.append(ParentNode("ol", line_nodes))
         elif block_type is BlockType.UNORDERED_LIST:
             lines = block.split("\n")
             line_nodes = []
             for line in lines:
                 line = line.replace("- ", "")
                 child_nodes = text_to_child_node(line)
-                line_nodes.append(ParentNode(tag="li", children=child_nodes))
-            nodes.append(ParentNode(tag="ul", children=line_nodes))
+                line_nodes.append(ParentNode("li", child_nodes))
+            nodes.append(ParentNode("ul", line_nodes))
         elif block_type is BlockType.CODE:
             new_block = block.strip("```")
             new_block = new_block.split("\n", 1)[1]
-            text_node = TextNode(text=new_block, text_type=TextType.CODE)
+            text_node = TextNode(new_block, TextType.CODE)
             child_node = text_node_to_html_node(text_node)
-            nodes.append(ParentNode(tag="pre", children=[child_node]))
+            nodes.append(ParentNode("pre", [child_node]))
         else:
             new_block = block.replace("\n", " ")
             child_nodes = text_to_child_node(new_block)
-            nodes.append(ParentNode(tag="p", children=child_nodes))
-    parent = ParentNode(tag="div", children=nodes)
+            nodes.append(ParentNode("p", child_nodes))
+    parent = ParentNode("div", nodes)
     return parent
     

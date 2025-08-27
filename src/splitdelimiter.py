@@ -81,7 +81,6 @@ def split_nodes_image(old_nodes):
     return new_nodes
 
 def split_nodes(old_nodes):
-    new_nodes = []
     new_nodes = split_nodes_delimiter(old_nodes, '**', TextType.BOLD)
     new_nodes = split_nodes_delimiter(new_nodes, '_', TextType.ITALIC)
     new_nodes = split_nodes_delimiter(new_nodes, '`', TextType.CODE)
