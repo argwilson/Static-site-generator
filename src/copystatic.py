@@ -1,15 +1,13 @@
 import os
 import shutil
 
-def copy_static():
-	static = "/home/arw74/bootdotdev/Static-site-generator/static"
-	public = "/home/arw74/bootdotdev/Static-site-generator/public"
-
+# Function that will be used to copy from static directory to public directory 
+def copy_static(source, directory):
 	# If public directory already exists, deletes it.
-	if os.path.exists(public):
-		shutil.rmtree(public)
+	if os.path.exists(directory):
+		shutil.rmtree(directory)
 	# Creates a new empty public directory
-	os.mkdir(public)
+	os.mkdir(directory)
 	# Inner function to help copy files from static to public, returns path location to each file found and creates subdirectories in location where files are to be copied
 	def get_source_paths(source, drc):
 		item_paths = []
@@ -33,3 +31,6 @@ def copy_static():
 	for path in paths:
 		new_path = path.replace('static', 'public')
 		shutil.copy(path, new_path)
+
+def generate_page(from_path, template_path, dest_path):
+	print(f"Generating page from {from_path} to {dest_path} using {template_path}")
