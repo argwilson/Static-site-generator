@@ -56,54 +56,73 @@ def text_to_child_node(text):
         child_nodes.append(new_node)
     return child_nodes
 
+def heading_to_node(block):
+    heading_list = block.split(" ", 1)
+    heading_value = len(heading_list[0])
+    child_nodes = text_to_child_node(heading_list[1])
+    return [ParentNode(f"h{heading_value}", child_nodes)]
+
+def quote_to_nodes(block):
+    nodes = []
+    block = block.replace("\n", "")
+    new_blocks = block.split(">")
+    for new_block in new_blocks:
+        if new_block == "":
+            continue
+        child_nodes = text_to_child_node(new_block)
+        nodes.append(ParentNode("blockquote", child_nodes))
+    return nodes
+
+def ol_to_nodes(block):
+    lines = block.split("\n")
+    i = 1
+    line_nodes = []
+    for line in lines:
+        line = line.replace(f"{i}. ", "")
+        child_nodes = text_to_child_node(line)
+        line_nodes.append(ParentNode("li", child_nodes))
+        i += 1
+    return [ParentNode("ol", line_nodes)]
+
+def ul_to_nodes(block):
+    lines = block.split("\n")
+    line_nodes = []
+    for line in lines:
+        line = line.replace("- ", "")
+        child_nodes = text_to_child_node(line)
+        line_nodes.append(ParentNode("li", child_nodes))
+    return [ParentNode("ul", line_nodes)]
+
+def code_to_node(block):
+    new_block = block.strip("```")
+    new_block = new_block.split("\n", 1)[1]
+    text_node = TextNode(new_block, TextType.CODE)
+    child_node = text_node_to_html_node(text_node)
+    return [ParentNode("pre", [child_node])]
+
+def text_to_node(block):
+    new_block = block.replace("\n", " ")
+    child_nodes = text_to_child_node(new_block)
+    return [ParentNode("p", child_nodes)]
+
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
     nodes = []
     for block in blocks:
         block_type = block_to_block_type(block)
         if block_type is BlockType.HEADING:
-            heading_list = block.split(" ", 1)
-            i = len(heading_list[0])
-            child_nodes = text_to_child_node(heading_list[1])
-            nodes.append(ParentNode(f"h{i}", child_nodes))
+            nodes.extend(heading_to_node(block))
         elif block_type is BlockType.QUOTE:
-            block = block.replace("\n", "")
-            new_blocks = block.split(">")
-            for new_block in new_blocks:
-                if new_block == "":
-                    continue
-                child_nodes = text_to_child_node(new_block)
-                nodes.append(ParentNode("blockquote", child_nodes))
+            nodes.extend(quote_to_nodes(block))
         elif block_type is BlockType.ORDERED_LIST:
-            lines = block.split("\n")
-            i = 1
-            line_nodes = []
-            for line in lines:
-                line = line.replace(f"{i}. ", "")
-                child_nodes = text_to_child_node(line)
-                line_nodes.append(ParentNode("li", child_nodes))
-                i += 1
-            nodes.append(ParentNode("ol", line_nodes))
+            nodes.extend(ol_to_nodes(block))
         elif block_type is BlockType.UNORDERED_LIST:
-            lines = block.split("\n")
-            line_nodes = []
-            for line in lines:
-                line = line.replace("- ", "")
-                child_nodes = text_to_child_node(line)
-                line_nodes.append(ParentNode("li", child_nodes))
-            nodes.append(ParentNode("ul", line_nodes))
+            nodes.extend(ul_to_nodes(block))
         elif block_type is BlockType.CODE:
-            new_block = block.strip("```")
-            new_block = new_block.split("\n", 1)[1]
-            text_node = TextNode(new_block, TextType.CODE)
-            child_node = text_node_to_html_node(text_node)
-            nodes.append(ParentNode("pre", [child_node]))
+            nodes.extend(code_to_node(block))
         else:
-            new_block = block.replace("\n", " ")
-            child_nodes = text_to_child_node(new_block)
-            nodes.append(ParentNode("p", child_nodes))
-    parent = ParentNode("div", nodes)
-    return parent
+            nodes.extend(text_to_node(block))
+    return ParentNode("div", nodes)
     
 def extract_title(markdown):
     block = markdown_to_blocks(markdown)[0]
