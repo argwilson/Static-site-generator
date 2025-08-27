@@ -9,9 +9,11 @@ class HTMLNode:
         return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})"
     
     def to_html(self):
+        # Converts node to html format (will work for inherited subclasses)
         raise NotImplementedError("to_html method not implemented")
 
     def props_to_html(self):
+        # If a HTMLNode (or associated node) has a prop, it converts it to a html string.
         if self.props is None:
             return ""
         key_string = ''
@@ -24,6 +26,7 @@ class LeafNode(HTMLNode):
         super().__init__(tag, value, None, props)
     
     def to_html(self):
+        # Converts node to html format
         if self.value is None:
             raise ValueError("invalid HTML: no value")
         if self.tag is None:
@@ -38,6 +41,7 @@ class ParentNode(HTMLNode):
         super().__init__(tag, None, children, props)
     
     def to_html(self):
+        # Converts node to html format
         if self.tag is None:
             raise ValueError("invalid HTML: no tag")
         if self.children is None:

@@ -22,17 +22,18 @@ class TextNode:
 		return f"TextNode({self.text}, {self.text_type}, {self.url})"
 
 def text_node_to_html_node(text_node):
+	# Depending on the TextType, returns a LeafNode with the associated html tag.
 	if text_node.text_type is TextType.TEXT:
-		return LeafNode(tag=None, value=text_node.text)
+		return LeafNode(None, text_node.text)
 	elif text_node.text_type is TextType.BOLD:
-		return LeafNode(tag='b', value=text_node.text)
+		return LeafNode('b', text_node.text)
 	elif text_node.text_type is TextType.ITALIC:
-		return LeafNode(tag='i', value=text_node.text)
+		return LeafNode('i', text_node.text)
 	elif text_node.text_type is TextType.CODE:
-		return LeafNode(tag='code', value=text_node.text)
+		return LeafNode('code', text_node.text)
 	elif text_node.text_type is TextType.LINK:
-		return LeafNode(tag='a', value=text_node.text, props={'href':f'{text_node.url}'})
+		return LeafNode('a', text_node.text, props={'href':f'{text_node.url}'})
 	elif text_node.text_type is TextType.IMAGE:
-		return LeafNode(tag='img', value='', props={'src':f'{text_node.url}', 'alt':f'{text_node.text}'})
+		return LeafNode('img', '', props={'src':f'{text_node.url}', 'alt':f'{text_node.text}'})
 	else:
 		raise Exception(f"invalid text type: {text_node.text_type}")

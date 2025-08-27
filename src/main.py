@@ -29,6 +29,8 @@ def static_to_public():
 
 def main():
 	static_to_public()
+	print(os.listdir("/home/arw74/bootdotdev/Static-site-generator/public"))
+	print(os.listdir("/home/arw74/bootdotdev/Static-site-generator/public/images"))
 
 if __name__ == "__main__":
     main()
