@@ -2,18 +2,18 @@ import os
 import shutil
 
 # Function that will be used to copy from static directory to public directory 
-def copy_static(source, directory):
-	# If public directory already exists, deletes it.
+def copy_source(source, directory):
+	# If directory already exists, deletes it.
 	if os.path.exists(directory):
 		shutil.rmtree(directory)
-	# Creates a new empty public directory
+	# Creates a new empty directory
 	os.mkdir(directory)
-	# Inner function to help copy files from static to public, returns path location to each file found and creates subdirectories in location where files are to be copied
-	def get_source_paths(source, drc):
+	# Inner function to help copy files from source to directory, returns path location to each file found and creates subdirectories in location where files are to be copied
+	def get_source_paths(src, drc):
 		item_paths = []
-		for item in os.listdir(source):
+		for item in os.listdir(src):
 			# Creates a new path for each subdirectory or file in source 
-			item_path = os.path.join(source, item)
+			item_path = os.path.join(src, item)
 			if not os.path.isfile(item_path):
 				# Creates a copy of a subdirectory from source path to directory path (will happen on each recursion)
 				new_drc = os.path.join(drc, item)
@@ -25,11 +25,13 @@ def copy_static(source, directory):
 				# Adds file to item_paths list
 				item_paths.append(item_path)
 		return item_paths
-	# Calls inner function on static and public
+	# Calls inner function on source and directory
 	paths = get_source_paths(source, directory)
-	# Finds appropriate location in public directory to create copy of static directory
+	# Finds appropriate location in directory to create copy of source
+	_, source_name = os.path.split(source)
+	_, direct_name = os.path.split(directory)
 	for path in paths:
-		new_path = path.replace('static', 'public')
+		new_path = path.replace(source_name, direct_name)
 		shutil.copy(path, new_path)
 
 def generate_page(from_path, template_path, dest_path):
