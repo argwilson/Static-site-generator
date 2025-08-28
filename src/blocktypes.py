@@ -63,15 +63,15 @@ def heading_to_node(block):
     return [ParentNode(f"h{heading_value}", child_nodes)]
 
 def quote_to_nodes(block):
-    nodes = []
-    block = block.replace("\n", "")
-    new_blocks = block.split(">")
+    new_blocks = block.split("\n")
+    new_lines = []
     for new_block in new_blocks:
-        if new_block == "":
-            continue
-        child_nodes = text_to_child_node(new_block)
-        nodes.append(ParentNode("blockquote", child_nodes))
-    return nodes
+        if not new_block.startswith(">"):
+            raise ValueError("invalid quote block")
+        new_lines.append(new_block.lstrip(">").strip())
+    content = " ".join(new_lines)
+    child_nodes = text_to_child_node(content)
+    return [ParentNode("blockquote", child_nodes)]
 
 def ol_to_nodes(block):
     lines = block.split("\n")
@@ -131,6 +131,6 @@ def extract_title(markdown):
         raise Exception("Warning, no h1 heading found")
     heading_list = block.split(" ", 1)
     if len(heading_list[0]) != 1:
-        raise Exception("Warning, noh1 heading found")
+        raise Exception("Warning, no h1 heading found")
     text = heading_list[1].strip()
     return text

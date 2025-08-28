@@ -1,5 +1,8 @@
 import os
+import re
 import shutil
+from blocktypes import markdown_to_html_node, extract_title
+import htmlnode
 
 # Function that will be used to copy from static directory to public directory 
 def copy_source(source, directory):
@@ -36,3 +39,28 @@ def copy_source(source, directory):
 
 def generate_page(from_path, template_path, dest_path):
 	print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+	if not from_path.endswith('.md'):
+		for file in os.walk(from_path):
+			if file.endswith('.md'):
+				md_file = open(file, 'r')
+	else:
+		md_file = open(from_path, 'r')
+	md = md_file.read()
+	md_file.close()
+	if not template_path.endswith('.html'):
+		for file in os.walk(template_path):
+			if file.endswith('.html'):
+				temp_file = open(file, 'r')
+	else:
+		temp_file = open(template_path, 'r')
+	template = temp_file.read()
+	temp_file.close()
+	node = markdown_to_html_node(md)
+	html_string = node.to_html()
+	title = extract_title(md)
+	template = template.replace(r"{{ Title }}", title)
+	template = template.replace(r"{{ Content }}", html_string)
+	f = open(dest_path, 'w')
+	f.write(template)
+	f.close()
+	return None
