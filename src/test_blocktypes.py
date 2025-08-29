@@ -90,7 +90,7 @@ This is a paragraph of text. It has some **bold** and _italic_ words inside of i
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><blockquote>This is a quote</blockquote><blockquote>This is another quote</blockquote><blockquote>This is a third quote</blockquote></div>"
+            "<div><blockquote>This is a quote This is another quote This is a third quote</blockquote></div>"
         )
     
     def test_ordered_list(self):
@@ -157,7 +157,14 @@ the **same** even with inline stuff
         self.assertEqual(text, "Hello")
     
     def test_extract_title_two(self):
-        md = "## Hello    "
+        md = "## Hello   "
+        with self.assertRaises(Exception):
+            extract_title(md)
+    
+    def test_extract_title_three(self):
+        md = """
+        ### Hello   
+        """
         with self.assertRaises(Exception):
             extract_title(md)
 
