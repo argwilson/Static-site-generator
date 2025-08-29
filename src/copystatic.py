@@ -37,7 +37,7 @@ def copy_source(source, directory):
 		new_path = path.replace(source_name, direct_name)
 		shutil.copy(path, new_path)
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, base_path):
 	print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 	md_file = open(from_path, 'r')
 	md = md_file.read()
@@ -50,17 +50,20 @@ def generate_page(from_path, template_path, dest_path):
 	title = extract_title(md)
 	template = template.replace(r"{{ Title }}", title)
 	template = template.replace(r"{{ Content }}", html_string)
+	if base_path != '/':
+		template = template.replace(r'href="/', rf'href="{base_path}')
+		template = template.replace(r'src="/', rf'src="{base_path}')
 	f = open(dest_path, 'w')
 	f.write(template)
 	f.close()
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, base_path):
 	for item in os.listdir(dir_path_content):
 		new_path = os.path.join(dir_path_content, item)
 		if not item.endswith('.md'):
 			new_dest = os.path.join(dest_dir_path, item)
 			os.mkdir(new_dest)
-			generate_pages_recursive(new_path, template_path, new_dest)
+			generate_pages_recursive(new_path, template_path, new_dest, base_path)
 		else:
 			md_file = open(new_path, 'r')
 			md = md_file.read()
@@ -73,6 +76,9 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
 			title = extract_title(md)
 			template = template.replace(r"{{ Title }}", title)
 			template = template.replace(r"{{ Content }}", html_string)
+			if base_path != '/':
+				template = template.replace(r'href="/', rf'href="{base_path}')
+				template = template.replace(r'src="/', rf'src="{base_path}')
 			filename = dest_dir_path + '/index.html'
 			f = open(filename, 'w')
 			f.write(template)
